@@ -2,13 +2,20 @@
 
 namespace App\Entity;
 
+use App\DTO\User as UserDTO;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ORM\Table(name="billing_user")
+ * @UniqueEntity(
+ *   fields={"email"},
+ *   message="Почта {{ value }} уже имеется."
+ * )
  */
 class User implements UserInterface
 {
@@ -34,6 +41,11 @@ class User implements UserInterface
      * @ORM\Column(type="string")
      */
     private $password;
+
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $balance;
 
     public function getId(): ?int
     {
@@ -114,5 +126,29 @@ class User implements UserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getBalance(): ?float
+    {
+        return $this->balance;
+    }
+
+    public function setBalance(float $balance): self
+    {
+        $this->balance = $balance;
+
+        return $this;
+    }
+
+    public static function fromDto(UserDto $userDto, UserPasswordEncoderInterface $passwordEncoder): self
+    {
+        $user = new self();
+        $user->setEmail($userDto->getUsername());
+        $user->setRoles(['ROLE_USER']);
+        $password = $passwordEncoder->encodePassword($user, $userDto->getPassword());
+        $user->setPassword($password);
+        $user->setBalance(0);
+
+        return $user;
     }
 }
