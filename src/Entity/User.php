@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Table(name="billing_user")
  * @UniqueEntity(
  *   fields={"email"},
- *   message="Почта {{ value }} уже имеется."
+ *   message="Данная почта уже зарегистрированна."
  * )
  */
 class User implements UserInterface

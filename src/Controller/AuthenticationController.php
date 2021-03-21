@@ -7,7 +7,6 @@ use App\DTO\User as UserDTO;
 use App\Entity\User;
 use JMS\Serializer\SerializerBuilder;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,20 +21,70 @@ class AuthenticationController extends ApiController
 {
     /**
      * @Route("/register", name="api_register", methods={"POST"})
-     * @OA\Response(
-     *     response=200,
-     *     description="Вовзвращает токен",
-     *     @OA\Schema(type="string")
-     * )
      * @OA\Post(
-     *     @OA\Parameter(
-     *         name="username",
-     *         in="body",
-     *         description="Почта",
-     *         required=true,
+     *     path="/api/v1/register",
+     *     summary="Регистрация нового пользователя",
+     *     @OA\RequestBody(
+     *         description="JSON",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="username",
+     *                     type="string"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="password",
+     *                     type="string"
+     *                 ),
+     *                 example={"username": "user10@test.com", "password": "123456"}
+     *             ),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Регистрация успешна",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="tocken",
+     *                     type="string"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="roles",
+     *                     type="array",
+     *                     @OA\Items(
+     *                     type="string"
+     *                     )
+     *                 ),
+     *                 example={"tocken": "tocken", "roles": "[ROLE_USER]"}
+     *             ),
+     *        )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Ошибочные данные",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="error",
+     *                     type="array",
+     *                     @OA\Items(
+     *                     type="string"
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="code",
+     *                     type="string",
+     *                 ),
+     *                 example={"error": "[error]", "code": "400"}
+     *             ),
+     *        )
      *     )
      * )
-     * @OA\Tag(name="user")
+     * @OA\Tag(name="User")
      */
     public function register(
         Request $request,
@@ -76,6 +125,60 @@ class AuthenticationController extends ApiController
 
     /**
      * @Route("/auth", name="api_authentication", methods={"POST"})
+     * @OA\Post(
+     *     path="/api/v1/auth",
+     *     summary="Авторизация пользователя",
+     *     @OA\RequestBody(
+     *         description="JSON",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="username",
+     *                     type="string"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="password",
+     *                     type="string"
+     *                 ),
+     *                 example={"username": "user@test.com", "password": "user@test.com"}
+     *             ),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Авторизация успешна",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="tocken",
+     *                     type="string"
+     *                 ),
+     *                 example={"tocken": "tocken"}
+     *             ),
+     *        )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Не верный пароль или логин",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="code",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="message",
+     *                     type="string",
+     *                 ),
+     *                 example={"code": "401", "message": "Invalid credentials."}
+     *             ),
+     *        )
+     *     )
+     * )
+     * @OA\Tag(name="User")
      */
     public function authentication(): void
     {

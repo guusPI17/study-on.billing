@@ -16,6 +16,16 @@ class Token
      */
     private $roles;
 
+    /**
+     * @Serializer\Type("int")
+     */
+    private $code;
+
+    /**
+     * @Serializer\Type("string")
+     */
+    private $message;
+
     public function __construct(string $token, array $roles)
     {
         $this->token = $token;
@@ -27,14 +37,34 @@ class Token
         return $this->token;
     }
 
-    public function getRoles(): array
-    {
-        return $this->roles;
-    }
-
     public function setToken(string $token): void
     {
         $this->token = $token;
+    }
+
+    public function getCode(): int
+    {
+        return $this->code;
+    }
+
+    public function setCode(int $code): void
+    {
+        $this->code = $code;
+    }
+
+    public function getMessage(): string
+    {
+        return $this->message;
+    }
+
+    public function setMessage(string $message): void
+    {
+        $this->message = $message;
+    }
+
+    public function getRoles(): array
+    {
+        return $this->roles;
     }
 
     public function setRoles(array $roles): void

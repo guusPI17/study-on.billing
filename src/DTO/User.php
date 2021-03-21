@@ -9,9 +9,9 @@ class User
 {
     /**
      * @Serializer\Type("string")
-     * @Assert\Email(message="Данный адрес {{ value }} написан неверно")
+     * @Assert\Email(message="Неверный формат почты.")
      * @Assert\NotNull(
-     *     message="Почта не может отсутствовать"
+     *     message="Почта не может отсутствовать."
      * )
      */
     private $username;
@@ -20,10 +20,7 @@ class User
      * @Serializer\Type("string")
      * @Assert\Length(
      *     min="6",
-     *     minMessage="Длина пароля должна быть минимум {{ limit }} символов"
-     * )
-     * @Assert\NotNull(
-     *     message="Пароль не может отсутствовать"
+     *     minMessage="Длина пароля должна быть минимум {{ limit }} символов."
      * )
      */
     private $password;
