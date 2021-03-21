@@ -97,7 +97,7 @@ class AuthenticationControllerTest extends AbstractTest
     {
         $client = self::getClient();
 
-        $errorsRequest = [
+        $errorsResponse = [
         'username' => [
             'uniqueFalse' => 'Данная почта уже зарегистрированна.',
             'failedFormat' => 'Неверный формат почты.',
@@ -109,20 +109,20 @@ class AuthenticationControllerTest extends AbstractTest
             [
                 'username' => [
                     'text' => 'test',
-                    'request' => $errorsRequest['username']['failedFormat'],
+                    'request' => $errorsResponse['username']['failedFormat'],
                 ],
                 'password' => [
                     'text' => '1',
-                    'request' => $errorsRequest['password']['smallLength'],
+                    'request' => $errorsResponse['password']['smallLength'],
                 ],
             ],
             [
                 'username' => [
                     'text' => 'user@test.com',
-                    'request' => $errorsRequest['username']['uniqueFalse'],
+                    'request' => $errorsResponse['username']['uniqueFalse'],
                 ],
                 'password' => [
-                    'text' => '12345',
+                    'text' => '123456',
                     'request' => 0,
                 ],
             ],
