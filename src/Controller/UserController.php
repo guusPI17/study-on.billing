@@ -14,23 +14,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends ApiController
 {
     /**
-     * @OA\Components(
-     *     @OA\SecurityScheme(
-     *         securityScheme="bearerAuth",
-     *         type="http",
-     *         scheme="bearer",
-     *     )
-     * )
-     */
-
-    /**
      * @Route("/current", name="api_user_current", methods={"GET"})
      *
      * @OA\Get(
      *     path="/api/v1/users/current",
      *     summary="Получение текущего пользователя",
      *     security={
-     *         { "bearerAuth":{} },
+     *         { "Bearer":{} },
      *     },
      *     @OA\Response(
      *         response=200,
