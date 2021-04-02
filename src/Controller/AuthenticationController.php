@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\DTO\Token as TokenDTO;
 use App\DTO\User as UserDTO;
 use App\Entity\User;
+use Gesdinet\JWTRefreshTokenBundle\Model\RefreshTokenManagerInterface;
+use Gesdinet\JWTRefreshTokenBundle\Service\RefreshToken;
 use JMS\Serializer\SerializerBuilder;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use OpenApi\Annotations as OA;
@@ -52,13 +54,16 @@ class AuthenticationController extends ApiController
      *                     type="string"
      *                 ),
      *                 @OA\Property(
+     *                     property="refresh_tocken",
+     *                     type="string"
+     *                 ),
+     *                 @OA\Property(
      *                     property="roles",
      *                     type="array",
      *                     @OA\Items(
      *                     type="string"
      *                     )
      *                 ),
-     *                 example={"tocken": "tocken", "roles": "[ROLE_USER]"}
      *             ),
      *        )
      *     ),
@@ -90,7 +95,8 @@ class AuthenticationController extends ApiController
         Request $request,
         ValidatorInterface $validator,
         UserPasswordEncoderInterface $passwordEncoder,
-        JWTTokenManagerInterface $JWTManager
+        JWTTokenManagerInterface $JWTManager,
+        RefreshTokenManagerInterface $refreshTokenManager
     ): Response {
         //return new JsonResponse($request->getContent());
         $serializer = SerializerBuilder::create()->build();
@@ -118,8 +124,15 @@ class AuthenticationController extends ApiController
 
         // создание токена JWT
         $token = $JWTManager->create($user);
-        $tokenResponse = new TokenDTO($token, $user->getRoles());
 
+        // создание refresh JWT токена
+        $refreshToken = $refreshTokenManager->create();
+        $refreshToken->setUsername($user->getEmail());
+        $refreshToken->setRefreshToken();
+        $refreshToken->setValid((new \DateTime())->modify('+1 month'));
+        $refreshTokenManager->save($refreshToken);
+
+        $tokenResponse = new TokenDTO($token, $refreshToken->getRefreshToken(), $user->getRoles());
         return $this->sendResponseSuccessful($tokenResponse, Response::HTTP_CREATED);
     }
 
@@ -155,7 +168,10 @@ class AuthenticationController extends ApiController
      *                     property="tocken",
      *                     type="string"
      *                 ),
-     *                 example={"tocken": "tocken"}
+     *                 @OA\Property(
+     *                     property="refresh_tocken",
+     *                     type="string"
+     *                 ),
      *             ),
      *        )
      *     ),
@@ -183,5 +199,66 @@ class AuthenticationController extends ApiController
     public function authentication(): void
     {
         // JWTAuthentication
+    }
+
+    /**
+     * @Route("/token/refresh", name="api_refresh", methods={"POST"})
+     * @OA\Post(
+     *     path="/api/v1/token/refresh",
+     *     summary="Обновление токена",
+     *     @OA\RequestBody(
+     *         description="JSON",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="refresh_token",
+     *                     type="string"
+     *                 ),
+     *                 example={"refresh_token": "refresh_token"}
+     *             ),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Токен успешно обновлен",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="tocken",
+     *                     type="string"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="refresh_tocken",
+     *                     type="string"
+     *                 ),
+     *             ),
+     *        )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Ошибка аутентификации",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="code",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="message",
+     *                     type="string",
+     *                 ),
+     *                 example={"code": "401", "message": "An authentication exception occurred."}
+     *             ),
+     *        )
+     *     )
+     * )
+     * @OA\Tag(name="User")
+     */
+    public function refresh(Request $request, RefreshToken $refreshService)
+    {
+        return $refreshService->refresh($request);
     }
 }

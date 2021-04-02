@@ -12,6 +12,11 @@ class Token
     private $token;
 
     /**
+     * @Serializer\Type("string")
+     */
+    private $refreshToken;
+
+    /**
      * @Serializer\Type("array")
      */
     private $roles;
@@ -26,9 +31,10 @@ class Token
      */
     private $message;
 
-    public function __construct(string $token, array $roles)
+    public function __construct(string $token, string $refreshToken, array $roles)
     {
         $this->token = $token;
+        $this->refreshToken = $refreshToken;
         $this->roles = $roles;
     }
 
@@ -40,6 +46,16 @@ class Token
     public function setToken(string $token): void
     {
         $this->token = $token;
+    }
+
+    public function getRefreshToken(): string
+    {
+        return $this->refreshToken;
+    }
+
+    public function setRefreshToken(string $refreshToken): void
+    {
+        $this->refreshToken = $refreshToken;
     }
 
     public function getCode(): int

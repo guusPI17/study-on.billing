@@ -30,7 +30,7 @@ abstract class ApiController extends AbstractController
         );
     }
 
-    protected function sendResponseSuccessful(object $data, int $status, array $headers = []): Response
+    protected function sendResponseSuccessful($data, int $status, array $headers = []): Response
     {
         $serializer = SerializerBuilder::create()->build();
 

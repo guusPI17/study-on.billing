@@ -14,6 +14,7 @@
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.8",
+        "gesdinet/jwt-refresh-token-bundle": "^0.11.1",
         "jms/serializer-bundle": "^3.8",
         "lexik/jwt-authentication-bundle": "^2.11",
         "nelmio/api-doc-bundle": "^4.2",

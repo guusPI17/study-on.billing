@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\DTO\Response as ResponseDTO;
-use App\DTO\User;
+use App\DTO\User as UserDto;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -43,7 +43,6 @@ class UserController extends ApiController
      *                     type="string"
      *                     ),
      *                 ),
-     *                 example={"username": "user@test.com", "balance": "100", "roles":"[ROLES]"}
      *             ),
      *        )
      *     ),
@@ -72,7 +71,7 @@ class UserController extends ApiController
     {
         $user = $this->getUser();
         if ($user) {
-            $userDto = new User();
+            $userDto = new UserDto();
             $userDto->setUsername($user->getEmail());
             $userDto->setRoles($user->getRoles());
             $userDto->setBalance($user->getBalance());
