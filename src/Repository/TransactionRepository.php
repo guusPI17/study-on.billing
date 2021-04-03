@@ -2,24 +2,24 @@
 
 namespace App\Repository;
 
+use App\Entity\Course;
 use App\Entity\Transaction;
 use App\Entity\User;
-use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @method Transaction|null find($id, $lockMode = null, $lockVersion = null)
- * @method Transaction|null findOneBy(array $criteria, array $orderBy = null)
- * @method Transaction[]    findAll()
- * @method Transaction[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Course|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Course|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Course[]    findAll()
+ * @method Course[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class TransactionRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Transaction::class);
+        parent::__construct($registry, Course::class);
     }
 
     /**
@@ -29,7 +29,7 @@ class TransactionRepository extends ServiceEntityRepository
         User $user,
         Request $request,
         CourseRepository $courseRepository
-    ) {
+    ): array {
         $type = $request->query->get('type');
         $courseCode = $request->query->get('course_code');
         $skipExpired = $request->query->get('skip_expired');
