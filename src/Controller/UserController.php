@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\DTO\Response as ResponseDTO;
 use App\DTO\User as UserDto;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,7 +23,7 @@ class UserController extends ApiController
      *     },
      *     @OA\Response(
      *         response=200,
-     *         description="Пользовтель получен",
+     *         description="Пользователь получен",
      *         @OA\MediaType(
      *             mediaType="application/json",
      *             @OA\Schema(
@@ -62,7 +61,25 @@ class UserController extends ApiController
      *                 ),
      *                 example={"code": "401", "message": "JWT Token not found"}
      *             ),
-     *        )
+     *        ),
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Текущий пользователь не определен",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="code",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="message",
+     *                     type="string",
+     *                 ),
+     *                 example={"code": "404", "message": "Текущий пользователь не определен"}
+     *             ),
+     *        ),
      *     )
      * )
      * @OA\Tag(name="User")
@@ -79,9 +96,6 @@ class UserController extends ApiController
             return $this->sendResponseSuccessful($userDto, Response::HTTP_OK);
         }
 
-        $errors = ['Текущий пользователь не определен'];
-        $responseDTO = new ResponseDTO($errors, Response::HTTP_NOT_FOUND);
-
-        return $this->sendResponseSuccessful($responseDTO, Response::HTTP_NOT_FOUND);
+        return $this->sendResponseBad(404, 'Текущий пользователь не определен');
     }
 }

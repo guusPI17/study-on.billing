@@ -11,20 +11,26 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 abstract class ApiController extends AbstractController
 {
-    protected function sendResponseBad(ConstraintViolationListInterface $validationErrors): Response
-    {
+    protected function sendResponseBad(
+        int $code,
+        string $message,
+        ConstraintViolationListInterface $validationErrors = null
+    ): Response {
         $serializer = SerializerBuilder::create()->build();
 
-        $errors = [];
-        foreach ($validationErrors as $validationError) {
-            $errors[] = $validationError->getMessage();
-        }
+        $responseDTO = new ResponseDTO($code, $message);
 
-        $responseDTO = new ResponseDTO($errors, 400);
+        if ($validationErrors) {
+            $errors = [];
+            foreach ($validationErrors as $validationError) {
+                $errors[] = $validationError->getMessage();
+            }
+            $responseDTO->setError($errors);
+        }
 
         return new JsonResponse(
             $serializer->serialize($responseDTO, 'json'),
-            400,
+            $code,
             [],
             true
         );

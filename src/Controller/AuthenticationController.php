@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\DTO\Token as TokenDTO;
 use App\DTO\User as UserDTO;
 use App\Entity\User;
+use App\Service\PaymentService;
 use Gesdinet\JWTRefreshTokenBundle\Model\RefreshTokenManagerInterface;
 use Gesdinet\JWTRefreshTokenBundle\Service\RefreshToken;
 use JMS\Serializer\SerializerBuilder;
@@ -84,7 +85,11 @@ class AuthenticationController extends ApiController
      *                     property="code",
      *                     type="string",
      *                 ),
-     *                 example={"error": "[error]", "code": "400"}
+     *                 @OA\Property(
+     *                     property="message",
+     *                     type="string",
+     *                 ),
+     *                 example={"error": "[error]", "code": "400", "message": "Ошибочные данные"}
      *             ),
      *        )
      *     )
@@ -96,7 +101,8 @@ class AuthenticationController extends ApiController
         ValidatorInterface $validator,
         UserPasswordEncoderInterface $passwordEncoder,
         JWTTokenManagerInterface $JWTManager,
-        RefreshTokenManagerInterface $refreshTokenManager
+        RefreshTokenManagerInterface $refreshTokenManager,
+        PaymentService $paymentService
     ): Response {
         //return new JsonResponse($request->getContent());
         $serializer = SerializerBuilder::create()->build();
@@ -105,7 +111,7 @@ class AuthenticationController extends ApiController
         // проверка правил из DTO
         $errors = $validator->validate($userDto);
         if (count($errors)) {
-            return $this->sendResponseBad($errors);
+            return $this->sendResponseBad(400, 'Ошибочные данные', $errors);
         }
 
         // создание пользователя
@@ -114,13 +120,20 @@ class AuthenticationController extends ApiController
         // проверка правил из Entity
         $errors = $validator->validate($user);
         if (count($errors)) {
-            return $this->sendResponseBad($errors);
+            return $this->sendResponseBad(400, 'Ошибочные данные', $errors);
         }
 
         // добавление пользователя в БД
         $manager = $this->getDoctrine()->getManager();
         $manager->persist($user);
         $manager->flush();
+
+        // пополнение счета пользователя
+        try {
+            $paymentService->refill($user, $this->getParameter('startingBalance'));
+        } catch (\Exception $e) {
+            return $this->sendResponseBad($e->getCode(), $e->getMessage());
+        }
 
         // создание токена JWT
         $token = $JWTManager->create($user);
@@ -133,6 +146,7 @@ class AuthenticationController extends ApiController
         $refreshTokenManager->save($refreshToken);
 
         $tokenResponse = new TokenDTO($token, $refreshToken->getRefreshToken(), $user->getRoles());
+
         return $this->sendResponseSuccessful($tokenResponse, Response::HTTP_CREATED);
     }
 

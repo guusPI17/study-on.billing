@@ -129,7 +129,6 @@ class AuthenticationControllerTest extends AbstractTest
         ];
 
         foreach ($checkData as $i => $iValue) {
-
             // json с неверными данными пользователя
             $userDto = new UserDto();
             $userDto->setUsername($iValue['username']['text']);

@@ -10,6 +10,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Transaction
 {
+    private const TYPES_OPERATION = [
+        1 => 'payment',
+        2 => 'deposit',
+    ];
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -36,12 +41,17 @@ class Transaction
     /**
      * @ORM\Column(type="float")
      */
-    private $value;
+    private $amount;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $expiresAt;
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private $expiresAt;
+    private $createdAt;
 
     public function getId(): ?int
     {
@@ -60,7 +70,6 @@ class Transaction
         return $this;
     }
 
-
     public function getCourse(): ?Course
     {
         return $this->course;
@@ -78,6 +87,16 @@ class Transaction
         return $this->typeOperation;
     }
 
+    public function getStringType(): string
+    {
+        return self::TYPES_OPERATION[$this->typeOperation];
+    }
+
+    public function getNumberTypeOperation(?string $stringTypeOperation): ?int
+    {
+        return array_search($stringTypeOperation, self::TYPES_OPERATION, true);
+    }
+
     public function setTypeOperation(int $typeOperation): self
     {
         $this->typeOperation = $typeOperation;
@@ -85,14 +104,14 @@ class Transaction
         return $this;
     }
 
-    public function getValue(): ?float
+    public function getAmount(): ?float
     {
-        return $this->value;
+        return $this->amount;
     }
 
-    public function setValue(float $value): self
+    public function setAmount(float $amount): self
     {
-        $this->value = $value;
+        $this->amount = $amount;
 
         return $this;
     }
@@ -102,9 +121,21 @@ class Transaction
         return $this->expiresAt;
     }
 
-    public function setExpiresAt(\DateTimeInterface $expiresAt): self
+    public function setExpiresAt(?\DateTimeInterface $expiresAt): self
     {
         $this->expiresAt = $expiresAt;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }

@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\User;
+use App\Service\PaymentService;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -10,10 +11,12 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 class UserFixtures extends Fixture
 {
     private $passwordEncoder;
+    private $paymentService;
 
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder, PaymentService $paymentService)
     {
         $this->passwordEncoder = $passwordEncoder;
+        $this->paymentService = $paymentService;
     }
 
     public function load(ObjectManager $manager)
@@ -23,8 +26,8 @@ class UserFixtures extends Fixture
         $user->setRoles(['ROLE_USER']);
         $password = $this->passwordEncoder->encodePassword($user, 'user@test.com');
         $user->setPassword($password);
-        $user->setBalance(100);
         $manager->persist($user);
+        $this->paymentService->refill($user, 200);
 
         $admin = new User();
         $admin->setEmail('admin@test.com');
@@ -33,6 +36,7 @@ class UserFixtures extends Fixture
         $admin->setPassword($password);
         $admin->setBalance(0);
         $manager->persist($admin);
+        $this->paymentService->refill($admin, 200);
 
         $manager->flush();
     }

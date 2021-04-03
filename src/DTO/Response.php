@@ -16,9 +16,14 @@ class Response
      */
     private $code;
 
-    public function __construct(array $error, int $code)
+    /**
+     * @Serializer\Type("string")
+     */
+    private $message;
+
+    public function __construct(int $code, string $message)
     {
-        $this->error = $error;
+        $this->message = $message;
         $this->code = $code;
     }
 
@@ -27,7 +32,7 @@ class Response
         return $this->error;
     }
 
-    public function setError($error): void
+    public function setError(array $error): void
     {
         $this->error = $error;
     }
@@ -37,8 +42,18 @@ class Response
         return $this->code;
     }
 
-    public function setCode($code): void
+    public function setCode(int $code): void
     {
         $this->code = $code;
+    }
+
+    public function getMessage(): string
+    {
+        return $this->message;
+    }
+
+    public function setMessage(string $message): void
+    {
+        $this->message = $message;
     }
 }

@@ -4,6 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    startingBalance: '%env(STARTING_BALANCE)%'
 
 services:
     # default configuration for services in *this* file
@@ -35,3 +36,8 @@ services:
 
     Gesdinet\JWTRefreshTokenBundle\Model\RefreshTokenManagerInterface:
         alias: "gesdinet.jwtrefreshtoken.refresh_token_manager"
+
+    App\Service\PaymentService:
+        public: true
+        autowire: true
+        arguments: ["@doctrine.orm.entity_manager"]
