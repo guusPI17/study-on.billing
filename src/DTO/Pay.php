@@ -21,10 +21,11 @@ class Pay
      */
     private $expiresAt;
 
-    public function __construct(bool $success, string $courseType)
+    public function __construct(bool $success, string $courseType, ?string $expiresAt)
     {
         $this->success = $success;
         $this->courseType = $courseType;
+        $this->expiresAt = $expiresAt;
     }
 
     public function getSuccess(): bool

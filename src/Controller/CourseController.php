@@ -21,9 +21,6 @@ class CourseController extends ApiController
      * @OA\Get(
      *     path="/api/v1/courses",
      *     summary="Получение списка курсов",
-     *     security={
-     *         { "Bearer":{} },
-     *     },
      *     @OA\Response(
      *         response=200,
      *         description="Список курсов",
@@ -255,15 +252,12 @@ class CourseController extends ApiController
         $user = $this->getUser();
         try {
             $transaction = $paymentService->paymentCourses($user, $course);
+            $expiresAt = $transaction->getExpiresAt();
             $payDto = new PayDto(
                 true,
-                $course->getStringType()
+                $course->getStringType(),
+                $expiresAt ? $expiresAt->format('Y-m-d T H:i:s') : null
             );
-            if ($transaction->getExpiresAt()) {
-                $payDto->setExpiresAt($transaction->getExpiresAt()->format('Y-m-d T H:i:s'));
-            } else {
-                $payDto->setExpiresAt(null);
-            }
 
             return $this->sendResponseSuccessful($payDto, Response::HTTP_OK);
         } catch (\Exception $e) {

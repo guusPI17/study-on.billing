@@ -31,12 +31,13 @@ class Transaction
      */
     private $amount;
 
-    public function __construct(int $id, string $createdAt, string $type, float $amount)
+    public function __construct(int $id, string $createdAt, string $type, float $amount, ?string $courseCode)
     {
         $this->id = $id;
         $this->createdAt = $createdAt;
         $this->type = $type;
         $this->amount = $amount;
+        $this->courseCode=$courseCode;
     }
 
     public function getId(): int

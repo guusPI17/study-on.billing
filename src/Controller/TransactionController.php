@@ -111,18 +111,15 @@ class TransactionController extends ApiController
 
         $transactionsDto = [];
         foreach ($transactions as $transaction) {
+            $course = $transaction->getCourse();
             $transactionsDto[] = new TransactionDto(
                 $transaction->getId(),
                 $transaction->getCreatedAt()->format('Y-m-d T H:i:s'),
                 $transaction->getStringType(),
-                $transaction->getAmount()
+                $transaction->getAmount(),
+                $course ? $course->getCode() : null
             );
-            $course = $transaction->getCourse();
-            if ($course) {
-                $transactionsDto[count($transactionsDto) - 1]->setCourseCode($course->getCode());
-            }
         }
-
         return $this->sendResponseSuccessful($transactionsDto, Response::HTTP_OK);
     }
 }
