@@ -87,7 +87,7 @@ class CourseController extends ApiController
      *     },
      *     @OA\Response(
      *         response=200,
-     *         description="Expired JWT Token",
+     *         description="Курс получен",
      *         @OA\MediaType(
      *             mediaType="application/json",
      *             @OA\Schema(

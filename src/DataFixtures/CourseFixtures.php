@@ -23,7 +23,7 @@ class CourseFixtures extends Fixture
                 'price' => '50',
             ],
             [
-                'code' => 'c#_course',
+                'code' => 'c_sharp_course',
                 'type' => array_search('buy', self::TYPES_COURSE, true),
                 'price' => '250',
             ],

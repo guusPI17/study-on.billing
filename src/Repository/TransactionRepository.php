@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Transaction;
 use App\Entity\User;
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,7 +36,8 @@ class TransactionRepository extends ServiceEntityRepository
 
         $qb = $this->createQueryBuilder('t')
             ->andWhere('t.user = :userId')
-            ->setParameter('userId', $user->getId());
+            ->setParameter('userId', $user->getId())
+            ->orderBy('t.createdAt', 'DESC');
 
         if ($type) {
             $numberType = (new Transaction())->getNumberTypeOperation($type);

@@ -40,7 +40,7 @@ class Course
 
     public function getType(): string
     {
-        return $this->code;
+        return $this->type;
     }
 
     public function setType(string $type): void
@@ -50,7 +50,7 @@ class Course
 
     public function getPrice(): ?float
     {
-        return $this->code;
+        return $this->price;
     }
 
     public function setPrice(?float $price): void
