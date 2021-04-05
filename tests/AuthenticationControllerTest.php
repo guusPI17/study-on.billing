@@ -29,7 +29,7 @@ class AuthenticationControllerTest extends AbstractTest
     {
         return [
             new UserFixtures($this->passwordEncoder, $this->paymentService),
-            CourseFixtures::class
+            CourseFixtures::class,
         ];
     }
 
@@ -237,15 +237,15 @@ class AuthenticationControllerTest extends AbstractTest
         $this->errorResponse(
             'post',
             $this->urlBase . '/token/refresh',
-            "",
+            '',
             401,
-            "An authentication exception occurred.");
+            'An authentication exception occurred.');
         /// Конец 2 теста <--
     }
 
     private function errorResponse(string $method, string $uri, string $token, string $code, string $message): void
     {
-        $client = self::getClient();;
+        $client = self::getClient();
 
         $contentHeaders = [
             'HTTP_AUTHORIZATION' => 'Bearer ' . $token,
@@ -304,7 +304,7 @@ class AuthenticationControllerTest extends AbstractTest
         $responseToken = $this->serializer->deserialize($client->getResponse()->getContent(), TokenDto::class, 'json');
         self::assertNotNull($responseToken->getToken());
         self::assertNotNull($responseToken->getRefreshToken());
+
         return $responseToken;
     }
-
 }

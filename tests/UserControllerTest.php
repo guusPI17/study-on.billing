@@ -8,7 +8,6 @@ use App\DTO\Response as ResponseDto;
 use App\DTO\Token as TokenDto;
 use App\DTO\User as UserDto;
 use App\Entity\User;
-use App\Repository\CourseRepository;
 use App\Repository\UserRepository;
 use App\Service\PaymentService;
 use JMS\Serializer\SerializerInterface;
@@ -30,7 +29,7 @@ class UserControllerTest extends AbstractTest
     {
         return [
             new UserFixtures($this->passwordEncoder, $this->paymentService),
-            CourseFixtures::class
+            CourseFixtures::class,
         ];
     }
 
@@ -83,9 +82,9 @@ class UserControllerTest extends AbstractTest
         $responseUser = $this->serializer->deserialize($client->getResponse()->getContent(), UserDto::class, 'json');
 
         // проверка данных пользователя
-        self::assertEquals($responseUser->getBalance(),$this->dataAdmin->getBalance());
+        self::assertEquals($responseUser->getBalance(), $this->dataAdmin->getBalance());
         self::assertContains($responseUser->getRoles()[0], $this->dataAdmin->getRoles());
-        self::assertEquals($responseUser->getUsername(),$this->dataAdmin->getEmail());
+        self::assertEquals($responseUser->getUsername(), $this->dataAdmin->getEmail());
 
         /// Конец первого теста <--
 
@@ -93,24 +92,24 @@ class UserControllerTest extends AbstractTest
         $this->errorResponse(
             'get',
             $this->urlBase . '/users/current',
-            "error_token",
+            'error_token',
             401,
-            "Invalid JWT Token");
+            'Invalid JWT Token');
         /// Конец 2 теста <--
 
         /// Начало 3 теста - не верные данные(jws токен отсутствует) -->
         $this->errorResponse(
             'get',
             $this->urlBase . '/users/current',
-            "",
+            '',
             401,
-            "JWT Token not found");
+            'JWT Token not found');
         /// Конец 3 теста <--
     }
 
     private function errorResponse(string $method, string $uri, string $token, string $code, string $message): void
     {
-        $client = self::getClient();;
+        $client = self::getClient();
 
         $contentHeaders = [
             'HTTP_AUTHORIZATION' => 'Bearer ' . $token,
@@ -169,6 +168,7 @@ class UserControllerTest extends AbstractTest
         $responseToken = $this->serializer->deserialize($client->getResponse()->getContent(), TokenDto::class, 'json');
         self::assertNotNull($responseToken->getToken());
         self::assertNotNull($responseToken->getRefreshToken());
+
         return $responseToken;
     }
 }

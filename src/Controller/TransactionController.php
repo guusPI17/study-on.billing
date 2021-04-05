@@ -120,6 +120,7 @@ class TransactionController extends ApiController
                 $course ? $course->getCode() : null
             );
         }
+
         return $this->sendResponseSuccessful($transactionsDto, Response::HTTP_OK);
     }
 }

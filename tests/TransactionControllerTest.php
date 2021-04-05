@@ -1,18 +1,14 @@
 <?php
 
-
 namespace App\Tests;
 
-use App\DataFixtures\TransactionFixtures;
-use App\DTO\Token as TokenDto;
-use App\DTO\User as UserDto;
-use App\DTO\Pay as PayDto;
-use App\DTO\Transaction as TransactionDto;
-use App\DTO\Response as ResponseDto;
-use App\DTO\Course as CourseDto;
 use App\DataFixtures\CourseFixtures;
+use App\DataFixtures\TransactionFixtures;
 use App\DataFixtures\UserFixtures;
-use App\Entity\Transaction;
+use App\DTO\Response as ResponseDto;
+use App\DTO\Token as TokenDto;
+use App\DTO\Transaction as TransactionDto;
+use App\DTO\User as UserDto;
 use App\Entity\User;
 use App\Repository\CourseRepository;
 use App\Repository\TransactionRepository;
@@ -122,7 +118,7 @@ class TransactionControllerTest extends AbstractTest
         /// Начало второго теста - верные данные -->
 
         // отправка запроса с фильтром skip_expired и type
-        $query = "skip_expired=1&type=payment";
+        $query = 'skip_expired=1&type=payment';
         $client->request(
             'get',
             $this->urlBase . "/transactions/filter?$query",
@@ -209,25 +205,25 @@ class TransactionControllerTest extends AbstractTest
         /// Начало 4 теста - не верные данные(jws токен ошибочный) -->
         $this->errorResponse(
             'get',
-            $this->urlBase . "/transactions/filter",
-            "error_token",
+            $this->urlBase . '/transactions/filter',
+            'error_token',
             401,
-            "Invalid JWT Token");
+            'Invalid JWT Token');
         /// Конец 4 теста <--
 
         /// Начало 5 теста - не верные данные(jws токен отсутствует) -->
         $this->errorResponse(
             'get',
-            $this->urlBase . "/transactions/filter",
-            "",
+            $this->urlBase . '/transactions/filter',
+            '',
             401,
-            "JWT Token not found");
+            'JWT Token not found');
         /// Конец 5 теста <--
     }
 
     private function errorResponse(string $method, string $uri, string $token, string $code, string $message): void
     {
-        $client = self::getClient();;
+        $client = self::getClient();
 
         $contentHeaders = [
             'HTTP_AUTHORIZATION' => 'Bearer ' . $token,
@@ -286,6 +282,7 @@ class TransactionControllerTest extends AbstractTest
         $responseToken = $this->serializer->deserialize($client->getResponse()->getContent(), TokenDto::class, 'json');
         self::assertNotNull($responseToken->getToken());
         self::assertNotNull($responseToken->getRefreshToken());
+
         return $responseToken;
     }
 }

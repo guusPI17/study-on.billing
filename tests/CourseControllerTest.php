@@ -1,16 +1,14 @@
 <?php
 
-
 namespace App\Tests;
 
-use App\DTO\Token as TokenDto;
-use App\DTO\User as UserDto;
-use App\DTO\Pay as PayDto;
-use App\DTO\Transaction as TransactionDto;
-use App\DTO\Response as ResponseDto;
-use App\DTO\Course as CourseDto;
 use App\DataFixtures\CourseFixtures;
 use App\DataFixtures\UserFixtures;
+use App\DTO\Course as CourseDto;
+use App\DTO\Pay as PayDto;
+use App\DTO\Response as ResponseDto;
+use App\DTO\Token as TokenDto;
+use App\DTO\User as UserDto;
 use App\Entity\User;
 use App\Repository\CourseRepository;
 use App\Repository\TransactionRepository;
@@ -35,7 +33,7 @@ class CourseControllerTest extends AbstractTest
     {
         return [
             new UserFixtures($this->passwordEncoder, $this->paymentService),
-            CourseFixtures::class
+            CourseFixtures::class,
         ];
     }
 
@@ -125,7 +123,7 @@ class CourseControllerTest extends AbstractTest
         foreach ($courses as $course) {
             $client->request(
                 'get',
-                $this->urlBase . "/courses/" . $course->getCode(),
+                $this->urlBase . '/courses/' . $course->getCode(),
                 [],
                 [],
                 $contentHeaders
@@ -150,30 +148,29 @@ class CourseControllerTest extends AbstractTest
         /// Начало 2 теста - не верный code course -->
         $this->errorResponse(
             'get',
-            $this->urlBase . "/courses/error_course",
+            $this->urlBase . '/courses/error_course',
             $authorizationToken->getToken(),
             404,
-            "Данный курс не найден");
+            'Данный курс не найден');
         /// Конец 2 теста <--
 
         /// Начало 3 теста - не верные данные(jws токен ошибочный) -->
         $this->errorResponse(
             'get',
-            $this->urlBase . "/courses/error_course",
-            "error_token",
+            $this->urlBase . '/courses/error_course',
+            'error_token',
             401,
-            "Invalid JWT Token");
+            'Invalid JWT Token');
         /// Конец 3 теста <--
 
         /// Начало 4 теста - не верные данные(jws токен отсутствует) -->
         $this->errorResponse(
             'get',
-            $this->urlBase . "/courses/error_course",
-            "",
+            $this->urlBase . '/courses/error_course',
+            '',
             401,
-            "JWT Token not found");
+            'JWT Token not found');
         /// Конец 4 теста <--
-
     }
 
     public function testPayCourseByCode(): void
@@ -196,7 +193,7 @@ class CourseControllerTest extends AbstractTest
 
         $client->request(
             'post',
-            $this->urlBase . "/courses/" . $course->getCode() . "/pay",
+            $this->urlBase . '/courses/' . $course->getCode() . '/pay',
             [],
             [],
             $contentHeaders
@@ -233,44 +230,43 @@ class CourseControllerTest extends AbstractTest
 
         $this->errorResponse(
             'post',
-            $this->urlBase . "/courses/" . $course->getCode() . "/pay",
+            $this->urlBase . '/courses/' . $course->getCode() . '/pay',
             $authorizationToken->getToken(),
             406,
-            "На вашем счету недостаточно средств");
+            'На вашем счету недостаточно средств');
         /// Конец 2 теста <--
 
         /// Начало 3 теста - не верный code course -->
         $this->errorResponse(
             'post',
-            $this->urlBase . "/courses/error_course/pay",
+            $this->urlBase . '/courses/error_course/pay',
             $authorizationToken->getToken(),
             404,
-            "Данный курс не найден");
+            'Данный курс не найден');
         /// Конец 3 теста <--
 
         /// Начало 4 теста - не верные данные(jws токен ошибочный) -->
         $this->errorResponse(
             'post',
-            $this->urlBase . "/courses/error_course/pay",
-            "error_token",
+            $this->urlBase . '/courses/error_course/pay',
+            'error_token',
             401,
-            "Invalid JWT Token");
+            'Invalid JWT Token');
         /// Конец 4 теста <--
 
         /// Начало 5 теста - не верные данные(jws токен отсутствует) -->
         $this->errorResponse(
             'get',
-            $this->urlBase . "/courses/error_course",
-            "",
+            $this->urlBase . '/courses/error_course',
+            '',
             401,
-            "JWT Token not found");
+            'JWT Token not found');
         /// Конец 5 теста <--
-
     }
 
     private function errorResponse(string $method, string $uri, string $token, string $code, string $message): void
     {
-        $client = self::getClient();;
+        $client = self::getClient();
 
         $contentHeaders = [
             'HTTP_AUTHORIZATION' => 'Bearer ' . $token,
@@ -329,6 +325,7 @@ class CourseControllerTest extends AbstractTest
         $responseToken = $this->serializer->deserialize($client->getResponse()->getContent(), TokenDto::class, 'json');
         self::assertNotNull($responseToken->getToken());
         self::assertNotNull($responseToken->getRefreshToken());
+
         return $responseToken;
     }
 }

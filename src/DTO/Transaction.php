@@ -37,7 +37,7 @@ class Transaction
         $this->createdAt = $createdAt;
         $this->type = $type;
         $this->amount = $amount;
-        $this->courseCode=$courseCode;
+        $this->courseCode = $courseCode;
     }
 
     public function getId(): int
