@@ -76,7 +76,7 @@ class TransactionController extends ApiController
      *     ),
      *     @OA\Response(
      *         response=401,
-     *         description="Expired JWT Token",
+     *         description="Invalid JWT Token",
      *         @OA\MediaType(
      *             mediaType="application/json",
      *             @OA\Schema(
@@ -88,7 +88,7 @@ class TransactionController extends ApiController
      *                     property="message",
      *                     type="string",
      *                 ),
-     *                 example={"code": "401", "message": "Expired JWT Token"}
+     *                 example={"code": "401", "message": "Invalid JWT Token"}
      *             ),
      *        )
      *     )

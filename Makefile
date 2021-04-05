@@ -19,7 +19,7 @@ migrate:
 	@${CONSOLE} doctrine:migrations:migrate
 
 fixtload:
-	@${CONSOLE} doctrine:fixtures:load
+	@${CONSOLE} doctrine:fixtures:load --group=group1
 
 exec-php:
 	@${PHP} /bin/sh

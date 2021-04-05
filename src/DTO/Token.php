@@ -31,7 +31,7 @@ class Token
      */
     private $message;
 
-    public function __construct(string $token, string $refreshToken, array $roles)
+    public function __construct(string $token = null, string $refreshToken = null, array $roles = null)
     {
         $this->token = $token;
         $this->refreshToken = $refreshToken;

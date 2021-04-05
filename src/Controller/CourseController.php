@@ -45,24 +45,6 @@ class CourseController extends ApiController
      *             ),
      *        )
      *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Expired JWT Token",
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(
-     *                 @OA\Property(
-     *                     property="code",
-     *                     type="string",
-     *                 ),
-     *                 @OA\Property(
-     *                     property="message",
-     *                     type="string",
-     *                 ),
-     *                 example={"code": "401", "message": "Expired JWT Token"}
-     *             ),
-     *        )
-     *     )
      * )
      * @OA\Tag(name="Course")
      */
@@ -126,7 +108,7 @@ class CourseController extends ApiController
      *     ),
      *     @OA\Response(
      *         response=401,
-     *         description="Expired JWT Token",
+     *         description="Invalid JWT Token",
      *         @OA\MediaType(
      *             mediaType="application/json",
      *             @OA\Schema(
@@ -138,7 +120,7 @@ class CourseController extends ApiController
      *                     property="message",
      *                     type="string",
      *                 ),
-     *                 example={"code": "401", "message": "Expired JWT Token"}
+     *                 example={"code": "401", "message": "Invalid JWT Token"}
      *             ),
      *        )
      *     )
@@ -166,7 +148,7 @@ class CourseController extends ApiController
      *     },
      *     @OA\Response(
      *         response=200,
-     *         description="Expired JWT Token",
+     *         description="Курс куплен",
      *         @OA\MediaType(
      *             mediaType="application/json",
      *             @OA\Schema(
@@ -217,13 +199,13 @@ class CourseController extends ApiController
      *                     property="message",
      *                     type="string",
      *                 ),
-     *                 example={"code": "406", "message": "У вас недостаточно средств"}
+     *                 example={"code": "406", "message": "На вашем счету недостаточно средств"}
      *             ),
      *        )
      *     ),
      *     @OA\Response(
      *         response=401,
-     *         description="Expired JWT Token",
+     *         description="Invalid JWT Token",
      *         @OA\MediaType(
      *             mediaType="application/json",
      *             @OA\Schema(
@@ -235,7 +217,7 @@ class CourseController extends ApiController
      *                     property="message",
      *                     type="string",
      *                 ),
-     *                 example={"code": "401", "message": "Expired JWT Token"}
+     *                 example={"code": "401", "message": "Invalid JWT Token"}
      *             ),
      *        )
      *     )

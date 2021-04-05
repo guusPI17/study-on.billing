@@ -5,10 +5,11 @@ namespace App\DataFixtures;
 use App\Entity\User;
 use App\Service\PaymentService;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class UserFixtures extends Fixture
+class UserFixtures extends Fixture implements FixtureGroupInterface
 {
     private $passwordEncoder;
     private $paymentService;
@@ -17,6 +18,11 @@ class UserFixtures extends Fixture
     {
         $this->passwordEncoder = $passwordEncoder;
         $this->paymentService = $paymentService;
+    }
+
+    public static function getGroups(): array
+    {
+        return ['group1'];
     }
 
     public function load(ObjectManager $manager)
@@ -29,6 +35,8 @@ class UserFixtures extends Fixture
         $manager->persist($user);
         $this->paymentService->refill($user, 200);
 
+        $this->addReference('accountUser', $user);
+
         $admin = new User();
         $admin->setEmail('admin@test.com');
         $admin->setRoles(['ROLE_SUPER_ADMIN']);
@@ -37,6 +45,8 @@ class UserFixtures extends Fixture
         $admin->setBalance(0);
         $manager->persist($admin);
         $this->paymentService->refill($admin, 200);
+
+        $this->addReference('accountAdmin', $admin);
 
         $manager->flush();
     }

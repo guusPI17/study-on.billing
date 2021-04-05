@@ -4,15 +4,21 @@ namespace App\DataFixtures;
 
 use App\Entity\Course;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class CourseFixtures extends Fixture
+class CourseFixtures extends Fixture implements FixtureGroupInterface
 {
     private const TYPES_COURSE = [
         1 => 'rent',
         2 => 'free',
         3 => 'buy',
     ];
+
+    public static function getGroups(): array
+    {
+        return ['group1'];
+    }
 
     public function load(ObjectManager $manager)
     {
@@ -49,6 +55,8 @@ class CourseFixtures extends Fixture
             $course->setCode($dataCourse['code']);
             $course->setType($dataCourse['type']);
             $course->setPrice($dataCourse['price']);
+
+            $this->addReference($dataCourse['code'], $course);
 
             $manager->persist($course);
         }
