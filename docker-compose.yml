@@ -21,8 +21,8 @@ services:
     environment:
       POSTGRES_USER: pguser
       POSTGRES_PASSWORD: pguser
-    #ports:
-    #  - '5432:5432'
+    ports:
+      - '5432:5432'
   php:
     build: docker/images/php
     working_dir: /app
@@ -34,3 +34,9 @@ services:
       - COMPOSER_ALLOW_SUPERUSER=1
     links:
       - postgres
+  mailhog:
+      image: mailhog/mailhog
+      container_name: 'mailhog'
+      ports:
+        - "1025:1025"
+        - "8025:8025"

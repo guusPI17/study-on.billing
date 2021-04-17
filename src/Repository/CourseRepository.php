@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Course;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,32 +20,49 @@ class CourseRepository extends ServiceEntityRepository
         parent::__construct($registry, Course::class);
     }
 
-    // /**
-    //  * @return Course[] Returns an array of Course objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @return Course[] Returns an array of Transaction objects
+     */
+    public function findExpiringCourses(User $user): array
     {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $entityManager = $this->getEntityManager();
 
-    /*
-    public function findOneBySomeField($value): ?Course
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $query = $entityManager->createQuery(
+            "select distinct c.title, t.expiresAt
+                    from App\Entity\Transaction t
+                    inner join App\Entity\User u with t.user = :id
+                    inner join App\Entity\Course c with t.course = c.id
+                    where t.typeOperation = 1
+                     and t.expiresAt < DATE_ADD(current_timestamp(),1,'day')"
+        )->setParameter('id', $user->getId());
+
+        return $query->getResult();
     }
-    */
+
+    public function findMonthlyPaymentReport(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "
+                  select c.title,
+                        case
+                            when c.type = 1 then 'Аренда'
+                            when c.type = 3 then 'Покупка'
+                            else 'Неизвестно'
+                        end as type,
+                        count(t.id),
+                        sum(t.amount * count(t.id)) over (order by c.title) as summa
+                  from course c
+                  inner join transaction t on c.id = t.course_id
+                  where
+                        t.created_at >= CURRENT_DATE and t.created_at <= CURRENT_DATE + interval '1 month'
+                        and c.type = 1 or c.type = 3
+                  group by c.title, c.type, t.amount, c.price
+                  order by c.title
+        ";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
 }
