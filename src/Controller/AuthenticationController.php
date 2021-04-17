@@ -104,7 +104,6 @@ class AuthenticationController extends ApiController
         RefreshTokenManagerInterface $refreshTokenManager,
         PaymentService $paymentService
     ): Response {
-        //return new JsonResponse($request->getContent());
         $serializer = SerializerBuilder::create()->build();
         $userDto = $serializer->deserialize($request->getContent(), UserDTO::class, 'json');
 

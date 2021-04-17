@@ -91,7 +91,7 @@ class CourseControllerTest extends AbstractTest
             $arrayCourses[$key] = $responseCourse;
         }
 
-        // првоерка данных по курсам
+        // проверка данных по курсам
         foreach ($coursesEntity as $courseEntity) {
             $code = $courseEntity->getCode();
             self::assertEquals($code, $arrayCourses[$code]->getCode());

@@ -24,26 +24,31 @@ class CourseFixtures extends Fixture implements FixtureGroupInterface
     {
         $courses = [
             [
+                'title' => 'Deep Learning (семестр 1, весна 2021): базовый поток',
                 'code' => 'deep_learning',
                 'type' => array_search('rent', self::TYPES_COURSE, true),
                 'price' => '50',
             ],
             [
+                'title' => 'C# для продвинутых',
                 'code' => 'c_sharp_course',
                 'type' => array_search('buy', self::TYPES_COURSE, true),
                 'price' => '250',
             ],
             [
+                'title' => 'Принципы дизайна исследований и статистики в медицине',
                 'code' => 'statistics_course',
                 'type' => array_search('rent', self::TYPES_COURSE, true),
                 'price' => '30',
             ],
             [
+                'title' => 'Курсы по дизайну',
                 'code' => 'design_course',
                 'type' => array_search('buy', self::TYPES_COURSE, true),
                 'price' => '70',
             ],
             [
+                'title' => 'Курсы Python',
                 'code' => 'python_course',
                 'type' => array_search('free', self::TYPES_COURSE, true),
                 'price' => '0',
@@ -52,6 +57,7 @@ class CourseFixtures extends Fixture implements FixtureGroupInterface
 
         foreach ($courses as $dataCourse) {
             $course = new Course();
+            $course->setTitle($dataCourse['title']);
             $course->setCode($dataCourse['code']);
             $course->setType($dataCourse['type']);
             $course->setPrice($dataCourse['price']);
