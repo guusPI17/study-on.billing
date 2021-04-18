@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\DTO\Course as CourseDto;
 use App\DTO\Pay as PayDto;
+use App\DTO\Response as ResponseDto;
 use App\Entity\Course;
 use App\Entity\User;
 use App\Repository\CourseRepository;
@@ -335,7 +336,10 @@ class CourseController extends ApiController
         $entityManager->persist($course);
         $entityManager->flush();
 
-        return $this->sendResponseSuccessful(['success' => true], 201);
+        $responseDto = new ResponseDto();
+        $responseDto->setSuccess(true);
+
+        return $this->sendResponseSuccessful($responseDto, 201);
     }
 
     /**
@@ -371,7 +375,7 @@ class CourseController extends ApiController
      *         )
      *     ),
      *     @OA\Response(
-     *         response=201,
+     *         response=200,
      *         description="Курс успешно изменен",
      *         @OA\MediaType(
      *             mediaType="application/json",
@@ -428,19 +432,22 @@ class CourseController extends ApiController
         $serializer = SerializerBuilder::create()->build();
         $courseDto = $serializer->deserialize($request->getContent(), CourseDto::class, 'json');
 
+        $courseEdit = $courseRepository->findOneBy(['code' => $code]);
+        if (!$courseEdit) {
+            return $this->sendResponseBad(404, 'Курс для изменения не найден');
+        }
+
         $course = $courseRepository->findOneBy(['code' => $courseDto->getCode()]);
         if ($course && $code !== $course->getCode()) {
             return $this->sendResponseBad(500, 'Данный код курса уже существует');
         }
 
-        $course = $courseRepository->findOneBy(['code' => $code]);
-        if (!$course) {
-            return $this->sendResponseBad(404, 'Курс для изменения не найден');
-        }
-
-        $course->fromDtoEdit($courseDto);
+        $courseEdit->fromDtoEdit($courseDto);
         $this->getDoctrine()->getManager()->flush();
 
-        return $this->sendResponseSuccessful(['success' => true], 201);
+        $responseDto = new ResponseDto();
+        $responseDto->setSuccess(true);
+
+        return $this->sendResponseSuccessful($responseDto, 200);
     }
 }

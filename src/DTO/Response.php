@@ -21,11 +21,10 @@ class Response
      */
     private $message;
 
-    public function __construct(int $code, string $message)
-    {
-        $this->message = $message;
-        $this->code = $code;
-    }
+    /**
+     * @Serializer\Type("bool")
+     */
+    private $success;
 
     public function getError(): array
     {
@@ -55,5 +54,15 @@ class Response
     public function setMessage(string $message): void
     {
         $this->message = $message;
+    }
+
+    public function getSuccess(): bool
+    {
+        return $this->success;
+    }
+
+    public function setSuccess(bool $success): void
+    {
+        $this->success = $success;
     }
 }

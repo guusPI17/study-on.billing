@@ -51,27 +51,22 @@ class ExpiringCourses extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        while (true) {
-            $users = $this->em
-                ->getRepository(User::class)
-                ->findAll();
-            foreach ($users as $user) {
-                $html = $this->generationHtml($user);
-                if ($html) {
-                    $email = (new Email())
-                        ->to($user->getUsername())
-                        ->subject('Уведомление об окончании срока аренды')
-                        ->html($html);
-                    try {
-                        $this->mailer->send($email);
-                    } catch (TransportExceptionInterface $e) {
-                        $output->writeln($e->getMessage());
+        $users = $this->em->getRepository(User::class)->findAll();
+        foreach ($users as $user) {
+            $html = $this->generationHtml($user);
+            if ($html) {
+                $email = (new Email())
+                    ->to($user->getUsername())
+                    ->subject('Уведомление об окончании срока аренды')
+                    ->html($html);
+                try {
+                    $this->mailer->send($email);
+                } catch (TransportExceptionInterface $e) {
+                    $output->writeln($e->getMessage());
 
-                        return Command::FAILURE;
-                    }
+                    return Command::FAILURE;
                 }
             }
-            sleep(60 * 60 * 24);
         }
         $output->writeln('Команда успешно выполнена');
 

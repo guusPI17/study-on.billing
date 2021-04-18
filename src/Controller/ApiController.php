@@ -18,18 +18,20 @@ abstract class ApiController extends AbstractController
     ): Response {
         $serializer = SerializerBuilder::create()->build();
 
-        $responseDTO = new ResponseDTO($code, $message);
+        $responseDto = new ResponseDTO();
+        $responseDto->setCode($code);
+        $responseDto->setMessage($message);
 
         if ($validationErrors) {
             $errors = [];
             foreach ($validationErrors as $validationError) {
                 $errors[] = $validationError->getMessage();
             }
-            $responseDTO->setError($errors);
+            $responseDto->setError($errors);
         }
 
         return new JsonResponse(
-            $serializer->serialize($responseDTO, 'json'),
+            $serializer->serialize($responseDto, 'json'),
             $code,
             [],
             true

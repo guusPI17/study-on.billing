@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests;
+namespace App\Controller\Tests;
 
 use App\DataFixtures\CourseFixtures;
 use App\DataFixtures\UserFixtures;
@@ -14,6 +14,7 @@ use App\Repository\CourseRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use App\Service\PaymentService;
+use App\Tests\AbstractTest;
 use JMS\Serializer\SerializerInterface;
 
 class CourseControllerTest extends AbstractTest
@@ -51,6 +52,247 @@ class CourseControllerTest extends AbstractTest
         $userRepository = self::$container->get(UserRepository::class);
         $this->dataAdmin = $userRepository->findOneBy(['email' => 'admin@test.com']);
         $this->dataUser = $userRepository->findOneBy(['email' => 'user@test.com']);
+    }
+
+    public function testNewCourse(): void
+    {
+        $client = self::getClient();
+
+        // авторизация
+        $authorizationToken = $this->authorization($this->dataAdmin);
+
+        /// Начало 1 теста - верные данные -->
+
+        // заголовки с верным аутиф.токеном
+        $contentHeaders = [
+            'HTTP_AUTHORIZATION' => 'Bearer ' . $authorizationToken->getToken(),
+            'CONTENT_TYPE' => 'application/json',
+        ];
+
+        // создание курса
+        $code = 'test_code';
+        $type = 'buy';
+        $price = 152.3;
+        $courseDto = new CourseDto($code, $type, $price);
+        $courseDto->setTitle('Test title');
+        $serializerData = $this->serializer->serialize($courseDto, 'json');
+
+        $client->request(
+            'post',
+            $this->urlBase . '/courses/new',
+            [],
+            [],
+            $contentHeaders,
+            $serializerData
+        );
+        // проверка статуса
+        $this->assertResponseCode(201);
+
+        // проверка заголовка
+        self::assertTrue($client->getResponse()->headers->contains('Content-Type', 'application/json'));
+
+        /** @var ResponseDto $response */
+        $response =
+            $this->serializer->deserialize($client->getResponse()->getContent(), ResponseDto::class, 'json');
+
+        // находим в базе курсов
+        $courseRepository = self::$container->get(CourseRepository::class);
+        $course = $courseRepository->findOneBy(['code' => $code]);
+
+        // проверка данных ответа
+        self::assertEquals($response->getSuccess(), true);
+        self::assertEquals($type, $course->getStringType());
+        self::assertEquals($price, $course->getPrice());
+
+        /// Конец 1 теста <--
+
+        /// Начало 2 теста - данный курс уже существует -->
+
+        // заголовки с верным аутиф.токеном
+        $contentHeaders = [
+            'HTTP_AUTHORIZATION' => 'Bearer ' . $authorizationToken->getToken(),
+            'CONTENT_TYPE' => 'application/json',
+        ];
+
+        // создание курса
+        $code = 'deep_learning';
+        $type = 'buy';
+        $price = 152.3;
+        $courseDto = new CourseDto($code, $type, $price);
+        $courseDto->setTitle('Test title');
+        $serializerData = $this->serializer->serialize($courseDto, 'json');
+
+        $client->request(
+            'post',
+            $this->urlBase . '/courses/new',
+            [],
+            [],
+            $contentHeaders,
+            $serializerData
+        );
+        // проверка статуса
+        $this->assertResponseCode(500);
+
+        // проверка заголовка
+        self::assertTrue($client->getResponse()->headers->contains('Content-Type', 'application/json'));
+
+        /** @var ResponseDto $response */
+        $response =
+            $this->serializer->deserialize($client->getResponse()->getContent(), ResponseDto::class, 'json');
+
+        // проверка данных ответа
+        self::assertEquals($response->getCode(), 500);
+        self::assertEquals($response->getMessage(), 'Данный код курса уже существует');
+
+        /// Конец 1 теста <--
+
+        /// Начало 3 теста - не верные данные(jws токен ошибочный) -->
+        $this->errorResponse(
+            'post',
+            $this->urlBase . '/courses/error_course/pay',
+            'error_token',
+            401,
+            'Invalid JWT Token');
+        /// Конец 3 теста <--
+
+        /// Начало 4 теста - не верные данные(jws токен отсутствует) -->
+        $this->errorResponse(
+            'get',
+            $this->urlBase . '/courses/error_course',
+            '',
+            401,
+            'JWT Token not found');
+        /// Конец 4 теста <--
+    }
+
+    public function testEditCourse(): void
+    {
+        $client = self::getClient();
+
+        // авторизация
+        $authorizationToken = $this->authorization($this->dataAdmin);
+
+        /// Начало 1 теста - верные данные -->
+
+        // заголовки с верным аутиф.токеном
+        $contentHeaders = [
+            'HTTP_AUTHORIZATION' => 'Bearer ' . $authorizationToken->getToken(),
+            'CONTENT_TYPE' => 'application/json',
+        ];
+
+        // создание курса
+        $code = 'test_code';
+        $type = 'buy';
+        $price = 152.3;
+        $courseDto = new CourseDto($code, $type, $price);
+        $courseDto->setTitle('Test title');
+        $serializerData = $this->serializer->serialize($courseDto, 'json');
+
+        $client->request(
+            'post',
+            $this->urlBase . '/courses/deep_learning/edit',
+            [],
+            [],
+            $contentHeaders,
+            $serializerData
+        );
+        // проверка статуса
+        $this->assertResponseOk();
+
+        // проверка заголовка
+        self::assertTrue($client->getResponse()->headers->contains('Content-Type', 'application/json'));
+
+        /** @var ResponseDto $response */
+        $response =
+            $this->serializer->deserialize($client->getResponse()->getContent(), ResponseDto::class, 'json');
+
+        // находим в базе курсов
+        $courseRepository = self::$container->get(CourseRepository::class);
+        $course = $courseRepository->findOneBy(['code' => $code]);
+
+        // проверка данных ответа
+        self::assertEquals($response->getSuccess(), true);
+        self::assertEquals($type, $course->getStringType());
+        self::assertEquals($price, $course->getPrice());
+
+        /// Конец 1 теста <--
+
+        /// Начало 2 теста - не верный code course -->
+
+        // создание любого курса
+        $code = 'test_code';
+        $type = 'buy';
+        $price = 152.3;
+        $courseDto = new CourseDto($code, $type, $price);
+        $courseDto->setTitle('Test title');
+        $serializerData = $this->serializer->serialize($courseDto, 'json');
+
+        $this->errorResponse(
+            'post',
+            $this->urlBase . '/courses/error_code/edit',
+            $authorizationToken->getToken(),
+            404,
+            'Курс для изменения не найден',
+            $serializerData);
+        /// Конец 2 теста <--
+
+        /// Начало 3 теста - code курса на который хотят изменить уже существует -->
+
+        // заголовки с верным аутиф.токеном
+        $contentHeaders = [
+            'HTTP_AUTHORIZATION' => 'Bearer ' . $authorizationToken->getToken(),
+            'CONTENT_TYPE' => 'application/json',
+        ];
+
+        // создание курса
+        $code = 'statistics_course';
+        $type = 'buy';
+        $price = 152.3;
+        $courseDto = new CourseDto($code, $type, $price);
+        $courseDto->setTitle('Test title');
+        $serializerData = $this->serializer->serialize($courseDto, 'json');
+
+        $client->request(
+            'post',
+            $this->urlBase . '/courses/c_sharp_course/edit',
+            [],
+            [],
+            $contentHeaders,
+            $serializerData
+        );
+        // проверка статуса
+        $this->assertResponseCode(500);
+
+        // проверка заголовка
+        self::assertTrue($client->getResponse()->headers->contains('Content-Type', 'application/json'));
+
+        /** @var ResponseDto $response */
+        $response =
+            $this->serializer->deserialize($client->getResponse()->getContent(), ResponseDto::class, 'json');
+
+        // проверка данных ответа
+        self::assertEquals($response->getCode(), 500);
+        self::assertEquals($response->getMessage(), 'Данный код курса уже существует');
+
+        /// Конец 3 теста <--
+
+        /// Начало 4 теста - не верные данные(jws токен ошибочный) -->
+        $this->errorResponse(
+            'post',
+            $this->urlBase . '/courses/error_course/pay',
+            'error_token',
+            401,
+            'Invalid JWT Token');
+        /// Конец 4 теста <--
+
+        /// Начало 5 теста - не верные данные(jws токен отсутствует) -->
+        $this->errorResponse(
+            'get',
+            $this->urlBase . '/courses/error_course',
+            '',
+            401,
+            'JWT Token not found');
+        /// Конец 5 теста <--
     }
 
     public function testCoursesList(): void
@@ -264,8 +506,14 @@ class CourseControllerTest extends AbstractTest
         /// Конец 5 теста <--
     }
 
-    private function errorResponse(string $method, string $uri, string $token, string $code, string $message): void
-    {
+    private function errorResponse(
+        string $method,
+        string $uri,
+        string $token,
+        string $code,
+        string $message,
+        string $content = null
+    ): void {
         $client = self::getClient();
 
         $contentHeaders = [
@@ -279,7 +527,8 @@ class CourseControllerTest extends AbstractTest
             $uri,
             [],
             [],
-            $contentHeaders
+            $contentHeaders,
+            $content
         );
         // проверка статуса
         $this->assertResponseCode($code);

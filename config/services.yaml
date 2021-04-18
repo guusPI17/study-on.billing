@@ -41,3 +41,4 @@ services:
         public: true
         autowire: true
         arguments: ["@doctrine.orm.entity_manager"]
+

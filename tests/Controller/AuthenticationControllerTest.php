@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests;
+namespace App\Controller\Tests;
 
 use App\DataFixtures\CourseFixtures;
 use App\DataFixtures\UserFixtures;
@@ -10,6 +10,7 @@ use App\DTO\User as UserDto;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\PaymentService;
+use App\Tests\AbstractTest;
 use JMS\Serializer\SerializerInterface;
 
 class AuthenticationControllerTest extends AbstractTest

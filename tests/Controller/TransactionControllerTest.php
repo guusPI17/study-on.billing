@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests;
+namespace App\Controller\Tests;
 
 use App\DataFixtures\CourseFixtures;
 use App\DataFixtures\TransactionFixtures;
@@ -14,6 +14,7 @@ use App\Repository\CourseRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use App\Service\PaymentService;
+use App\Tests\AbstractTest;
 use JMS\Serializer\SerializerInterface;
 
 class TransactionControllerTest extends AbstractTest

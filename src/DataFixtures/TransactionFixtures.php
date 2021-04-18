@@ -4,14 +4,29 @@ namespace App\DataFixtures;
 
 use App\Entity\Transaction;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class TransactionFixtures extends Fixture
+class TransactionFixtures extends Fixture implements FixtureGroupInterface /*, DependentFixtureInterface*/
 {
     private const TYPES_OPERATION = [
         1 => 'payment',
         2 => 'deposit',
     ];
+
+    public static function getGroups(): array
+    {
+        return ['group2'];
+    }
+
+    /*public function getDependencies()
+    {
+        return [
+            UserFixtures::class,
+            CourseFixtures::class,
+        ];
+    }*/
 
     public function load(ObjectManager $manager)
     {
