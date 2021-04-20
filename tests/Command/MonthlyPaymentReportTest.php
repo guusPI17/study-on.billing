@@ -5,24 +5,15 @@ namespace App\Tests\Command;
 use App\DataFixtures\CourseFixtures;
 use App\DataFixtures\TransactionFixtures;
 use App\DataFixtures\UserFixtures;
-use App\Service\PaymentService;
 use App\Tests\AbstractTest;
-use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\MailerInterface;
-use Twig\Environment;
 
 class MonthlyPaymentReportTest extends AbstractTest
 {
     private $commandTester;
-    private $messageLogger;
-
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
+    private $symfonyMailer;
 
     protected function getFixtures(): array
     {
@@ -37,9 +28,6 @@ class MonthlyPaymentReportTest extends AbstractTest
     {
         static::getClient();
 
-        /*$this->messageLogger = self::$container->get('mailer.default_transport');*/
-        $this->serializer = self::$container->get('jms_serializer');
-
         $application = new Application(self::$kernel);
         $command = $application->find('payment:report');
         $this->commandTester = new CommandTester($command);
@@ -47,24 +35,34 @@ class MonthlyPaymentReportTest extends AbstractTest
         $this->loadFixtures($this->getFixtures());
     }
 
+
+    private function serviceSubstitution(): void
+    {
+        self::getClient()->disableReboot();
+        $this->symfonyMailer = $this->getMockBuilder(MailerInterface::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['send'])
+            ->getMock();
+        self::getClient()->getContainer()->set(MailerInterface::class, $this->symfonyMailer);
+    }
+
     public function testExecute()
     {
+        // подмена сервиса
+        $this->serviceSubstitution();
+
+        // один раз должен быть send
+        $this->symfonyMailer->expects(self::once())
+            ->method('send');
+
         /// Начало 1 теста - верные данные -->
         $this->commandTester->execute(['date' => '2021-04-20']);
-
-       /* $symfonyMailer = $this->createMock(MailerInterface::class);
-        $symfonyMailer->expects(self::once())
-            ->method('send');
-        $twig = $this->createMock(Environment::class);
-        $mailer = new Mailer($symfonyMailer, $twig);*/
-        //$mailer->sendWelcomeMessage($user);
 
         // получить вывод из консоли
         $output = $this->commandTester->getDisplay();
 
         // проверка результатов консоли
         self::assertStringContainsString('Команда успешно выполнена', $output);
-
         /// Конец 1 теста <--
 
         /// Начало 2 теста - не верный аргумент date -->

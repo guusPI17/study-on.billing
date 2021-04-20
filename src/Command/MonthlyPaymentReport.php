@@ -11,6 +11,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mime\Email;
 
 class MonthlyPaymentReport extends Command
@@ -23,7 +25,7 @@ class MonthlyPaymentReport extends Command
 
     public function __construct(
         Twig $twig,
-        MailerInterface $mailer,
+        TransportInterface $mailer,
         EntityManagerInterface $em
     ) {
         $this->mailer = $mailer;
@@ -35,9 +37,9 @@ class MonthlyPaymentReport extends Command
     protected function configure()
     {
         $this->addArgument('date',
-                InputArgument::REQUIRED,
-                'Требуется ввести дату начала генерации отчета'
-            );
+            InputArgument::REQUIRED,
+            'Требуется ввести дату начала генерации отчета'
+        );
     }
 
     private function generationHtml(string $date): string
@@ -45,14 +47,13 @@ class MonthlyPaymentReport extends Command
         try {
             $dateStart = (new \DateTime($date))->format('d-m-Y');
             $dateEnd = (new \DateTime("$date + 1 month"))->format('d-m-Y');
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
             throw new \Exception('Не верный формат аргумента "date"');
         }
 
         $courses = $this->em
             ->getRepository(Course::class)
-            ->findMonthlyPaymentReport($date)
-        ;
+            ->findMonthlyPaymentReport($date);
 
         $totalAmount = 0;
         foreach ($courses as $course) {
@@ -74,10 +75,10 @@ class MonthlyPaymentReport extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try {
-        $email = (new Email())
-            ->to()
-            ->subject('Отчет по оплатам за месяц')
-            ->html($this->generationHtml($input->getArgument('date')));
+            $email = (new Email())
+                ->to()
+                ->subject('Отчет по оплатам за месяц')
+                ->html($this->generationHtml($input->getArgument('date')));
 
             $this->mailer->send($email);
             $output->writeln('Команда успешно выполнена');
@@ -87,7 +88,7 @@ class MonthlyPaymentReport extends Command
             $output->writeln($e->getMessage());
 
             return Command::FAILURE;
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
             $output->writeln($e->getMessage());
 
             return Command::FAILURE;

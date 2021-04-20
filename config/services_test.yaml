@@ -1,0 +1,5 @@
+services:
+    Symfony\Component\Mailer\MailerInterface:
+        alias: 'Symfony\Component\Mailer\Mailer'
+        public: true
+    Symfony\Component\Mailer\Mailer: ~

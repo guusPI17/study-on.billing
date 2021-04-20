@@ -5,25 +5,13 @@ namespace App\Tests\Command;
 use App\DataFixtures\CourseFixtures;
 use App\DataFixtures\TransactionFixtures;
 use App\DataFixtures\UserFixtures;
-use App\Service\PaymentService;
 use App\Tests\AbstractTest;
-use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Mailer\Mailer;
-use Symfony\Component\Mailer\MailerInterface;
-use Twig\Environment;
 
 class ExpiringCoursesTest extends AbstractTest
 {
-    private $passwordEncoder;
-    private $paymentService;
     private $commandTester;
-
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
 
     protected function getFixtures(): array
     {
@@ -37,8 +25,6 @@ class ExpiringCoursesTest extends AbstractTest
     protected function setUp(): void
     {
         static::getClient();
-
-        $this->serializer = self::$container->get('jms_serializer');
 
         $application = new Application(self::$kernel);
         $command = $application->find('payment:ending:notification');
