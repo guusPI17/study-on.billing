@@ -20,11 +20,8 @@ use JMS\Serializer\SerializerInterface;
 class TransactionControllerTest extends AbstractTest
 {
     private $urlBase;
-    private $passwordEncoder;
-    private $paymentService;
     private $dataUser;
     private $dataAdmin;
-    private $em;
 
     /**
      * @var SerializerInterface
@@ -34,7 +31,7 @@ class TransactionControllerTest extends AbstractTest
     protected function getFixtures(): array
     {
         return [
-            new UserFixtures($this->passwordEncoder, $this->paymentService),
+            UserFixtures::class,
             CourseFixtures::class,
             TransactionFixtures::class,
         ];
@@ -44,9 +41,6 @@ class TransactionControllerTest extends AbstractTest
     {
         static::getClient();
 
-        $this->passwordEncoder = self::$container->get('security.password_encoder');
-        $this->em = self::$container->get('doctrine')->getManager();
-        $this->paymentService = self::$container->get(PaymentService::class);
         $this->serializer = self::$container->get('jms_serializer');
         $this->urlBase = '/api/v1';
 
@@ -139,10 +133,10 @@ class TransactionControllerTest extends AbstractTest
             $this->serializer->deserialize($client->getResponse()->getContent(), 'array<App\DTO\Transaction>', 'json');
 
         // количество транзакций в БД и в ответе на запрос
-        self::assertEquals(count($responseTransactions), 2);
+        self::assertEquals(count($responseTransactions), 3);
 
         $courseRepository = self::$container->get(CourseRepository::class);
-        $arrayCodesCourses = ['python_course', 'deep_learning'];
+        $arrayCodesCourses = ['statistics_course','python_course', 'deep_learning'];
 
         // проверка верности данных из ответа на запрос(+ проверка на верную сортировку)
         foreach ($arrayCodesCourses as $i => $codeCourse) {

@@ -16,9 +16,6 @@ use Twig\Environment;
 
 class MonthlyPaymentReportTest extends AbstractTest
 {
-    private $passwordEncoder;
-    private $paymentService;
-    private $em;
     private $commandTester;
     private $messageLogger;
 
@@ -30,7 +27,7 @@ class MonthlyPaymentReportTest extends AbstractTest
     protected function getFixtures(): array
     {
         return [
-            new UserFixtures($this->passwordEncoder, $this->paymentService),
+            UserFixtures::class,
             CourseFixtures::class,
             TransactionFixtures::class,
         ];
@@ -40,10 +37,7 @@ class MonthlyPaymentReportTest extends AbstractTest
     {
         static::getClient();
 
-        $this->passwordEncoder = self::$container->get('security.password_encoder');
-        $this->messageLogger = self::$container->get('mailer.default_transport');
-        $this->em = self::$container->get('doctrine')->getManager();
-        $this->paymentService = self::$container->get(PaymentService::class);
+        /*$this->messageLogger = self::$container->get('mailer.default_transport');*/
         $this->serializer = self::$container->get('jms_serializer');
 
         $application = new Application(self::$kernel);
@@ -55,22 +49,30 @@ class MonthlyPaymentReportTest extends AbstractTest
 
     public function testExecute()
     {
-        $this->commandTester->execute([]);
+        /// Начало 1 теста - верные данные -->
+        $this->commandTester->execute(['date' => '2021-04-20']);
 
-        /*$symfonyMailer = $this->createMock(MailerInterface::class);
+       /* $symfonyMailer = $this->createMock(MailerInterface::class);
         $symfonyMailer->expects(self::once())
             ->method('send');
         $twig = $this->createMock(Environment::class);
-        $mailer = new Mailer($symfonyMailer, $twig);
+        $mailer = new Mailer($symfonyMailer, $twig);*/
         //$mailer->sendWelcomeMessage($user);
-
-
-        var_dump($mailer);exit;*/
 
         // получить вывод из консоли
         $output = $this->commandTester->getDisplay();
 
         // проверка результатов консоли
         self::assertStringContainsString('Команда успешно выполнена', $output);
+
+        /// Конец 1 теста <--
+
+        /// Начало 2 теста - не верный аргумент date -->
+        $this->commandTester->execute(['date' => '1']);
+        // получить вывод из консоли
+        $output = $this->commandTester->getDisplay();
+        // проверка результатов консоли
+        self::assertStringContainsString('Не верный формат аргумента "date"', $output);
+        /// Конец 2 теста <--
     }
 }

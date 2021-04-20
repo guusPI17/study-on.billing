@@ -28,7 +28,7 @@ class ExpiringCoursesTest extends AbstractTest
     protected function getFixtures(): array
     {
         return [
-            new UserFixtures($this->passwordEncoder, $this->paymentService),
+            UserFixtures::class,
             CourseFixtures::class,
             TransactionFixtures::class,
         ];
@@ -38,8 +38,6 @@ class ExpiringCoursesTest extends AbstractTest
     {
         static::getClient();
 
-        $this->passwordEncoder = self::$container->get('security.password_encoder');
-        $this->paymentService = self::$container->get(PaymentService::class);
         $this->serializer = self::$container->get('jms_serializer');
 
         $application = new Application(self::$kernel);

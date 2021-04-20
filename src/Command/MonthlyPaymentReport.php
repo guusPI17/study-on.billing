@@ -6,6 +6,7 @@ use App\Entity\Course;
 use App\Service\Twig;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
@@ -31,11 +32,26 @@ class MonthlyPaymentReport extends Command
         parent::__construct();
     }
 
-    private function generationHtml(): string
+    protected function configure()
     {
+        $this->addArgument('date',
+                InputArgument::REQUIRED,
+                'Требуется ввести дату начала генерации отчета'
+            );
+    }
+
+    private function generationHtml(string $date): string
+    {
+        try {
+            $dateStart = (new \DateTime($date))->format('d-m-Y');
+            $dateEnd = (new \DateTime("$date + 1 month"))->format('d-m-Y');
+        } catch(\Exception $e){
+            throw new \Exception('Не верный формат аргумента "date"');
+        }
+
         $courses = $this->em
             ->getRepository(Course::class)
-            ->findMonthlyPaymentReport()
+            ->findMonthlyPaymentReport($date)
         ;
 
         $totalAmount = 0;
@@ -47,8 +63,8 @@ class MonthlyPaymentReport extends Command
             [
                 'courses' => $courses,
                 'totalAmount' => $totalAmount,
-                'date' => (new \DateTime())->format('d-m-Y'),
-                'datePlusMonth' => (new \DateTime('+ 1 month'))->format('d-m-Y'),
+                'date' => $dateStart,
+                'datePlusMonth' => $dateEnd,
             ]
         );
 
@@ -57,17 +73,21 @@ class MonthlyPaymentReport extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        try {
         $email = (new Email())
             ->to()
             ->subject('Отчет по оплатам за месяц')
-            ->html($this->generationHtml());
+            ->html($this->generationHtml($input->getArgument('date')));
 
-        try {
             $this->mailer->send($email);
             $output->writeln('Команда успешно выполнена');
 
             return Command::SUCCESS;
         } catch (TransportExceptionInterface $e) {
+            $output->writeln($e->getMessage());
+
+            return Command::FAILURE;
+        } catch(\Exception $e){
             $output->writeln($e->getMessage());
 
             return Command::FAILURE;

@@ -3,12 +3,14 @@
 namespace App\DataFixtures;
 
 use App\Entity\Transaction;
+use App\Service\PaymentService;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class TransactionFixtures extends Fixture implements FixtureGroupInterface /*, DependentFixtureInterface*/
+class TransactionFixtures extends Fixture implements FixtureGroupInterface, DependentFixtureInterface
 {
     private const TYPES_OPERATION = [
         1 => 'payment',
@@ -17,16 +19,16 @@ class TransactionFixtures extends Fixture implements FixtureGroupInterface /*, D
 
     public static function getGroups(): array
     {
-        return ['group2'];
+        return ['group1'];
     }
 
-    /*public function getDependencies()
+    public function getDependencies()
     {
         return [
             UserFixtures::class,
             CourseFixtures::class,
         ];
-    }*/
+    }
 
     public function load(ObjectManager $manager)
     {
@@ -36,12 +38,36 @@ class TransactionFixtures extends Fixture implements FixtureGroupInterface /*, D
                 'user' => $this->getReference('accountAdmin'),
                 'typeOperation' => 1,
                 'amount' => $this->getReference('deep_learning')->getPrice(),
-                'expiresAt' => (new \DateTime())->add(new \DateInterval('P1W')),
+                'expiresAt' => (new \DateTime('-1 day'))->add(new \DateInterval('P1W')),
                 'createdAt' => (new \DateTime('-1 day')),
             ],
             [
-                'course' => $this->getReference('design_course'),
+                'course' => $this->getReference('deep_learning'),
+                'user' => $this->getReference('accountUser'),
+                'typeOperation' => 1,
+                'amount' => $this->getReference('deep_learning')->getPrice(),
+                'expiresAt' => (new \DateTime())->add(new \DateInterval('P1W')),
+                'createdAt' => (new \DateTime()),
+            ],
+            [
+                'course' => $this->getReference('statistics_course'),
+                'user' => $this->getReference('accountUser'),
+                'typeOperation' => 1,
+                'amount' => $this->getReference('statistics_course')->getPrice(),
+                'expiresAt' => (new \DateTime())->add(new \DateInterval('P1W')),
+                'createdAt' => (new \DateTime()),
+            ],
+            [
+                'course' => $this->getReference('statistics_course'),
                 'user' => $this->getReference('accountAdmin'),
+                'typeOperation' => 1,
+                'amount' => $this->getReference('statistics_course')->getPrice(),
+                'expiresAt' => (new \DateTime())->add(new \DateInterval('P1W')),
+                'createdAt' => (new \DateTime()),
+            ],
+            [
+                'course' => $this->getReference('design_course'),
+                'user' => $this->getReference('accountUser'),
                 'typeOperation' => 1,
                 'amount' => $this->getReference('design_course')->getPrice(),
                 'expiresAt' => (new \DateTime('-2 day')),

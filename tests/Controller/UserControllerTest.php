@@ -16,8 +16,6 @@ use JMS\Serializer\SerializerInterface;
 class UserControllerTest extends AbstractTest
 {
     private $urlBase;
-    private $passwordEncoder;
-    private $paymentService;
     private $dataUser;
     private $dataAdmin;
 
@@ -29,7 +27,7 @@ class UserControllerTest extends AbstractTest
     protected function getFixtures(): array
     {
         return [
-            new UserFixtures($this->passwordEncoder, $this->paymentService),
+            UserFixtures::class,
             CourseFixtures::class,
         ];
     }
@@ -38,8 +36,6 @@ class UserControllerTest extends AbstractTest
     {
         static::getClient();
 
-        $this->passwordEncoder = self::$container->get('security.password_encoder');
-        $this->paymentService = self::$container->get(PaymentService::class);
         $this->serializer = self::$container->get('jms_serializer');
         $this->urlBase = '/api/v1';
 

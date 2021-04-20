@@ -58,6 +58,7 @@ abstract class AbstractTest extends WebTestCase
         return [];
     }
 
+
     /**
      * Load fixtures before test.
      */
@@ -73,7 +74,6 @@ abstract class AbstractTest extends WebTestCase
             if ($fixture instanceof ContainerAwareInterface) {
                 $fixture->setContainer(static::$container);
             }
-
             $loader->addFixture($fixture);
         }
 
