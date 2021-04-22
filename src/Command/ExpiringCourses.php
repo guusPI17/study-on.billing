@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mime\Email;
 
 class ExpiringCourses extends Command
@@ -23,7 +24,7 @@ class ExpiringCourses extends Command
 
     public function __construct(
         Twig $twig,
-        MailerInterface $mailer,
+        TransportInterface $mailer,
         EntityManagerInterface $em
     ) {
         $this->mailer = $mailer;
