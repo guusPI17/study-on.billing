@@ -39,7 +39,7 @@ class CourseRepository extends ServiceEntityRepository
         return $query->getResult();
     }
 
-    public function findMonthlyPaymentReport(string $date): array
+    public function findMonthlyPaymentReport(\DateTime $date): array
     {
         $conn = $this->getEntityManager()->getConnection();
 
@@ -55,13 +55,13 @@ class CourseRepository extends ServiceEntityRepository
                   from course c
                   inner join transaction t on c.id = t.course_id
                   where
-                        t.created_at >= :date and t.created_at <= :date + interval '1 month'
-                        and c.type = 1 or c.type = 3
+                        t.created_at >= :date and t.created_at <= (:date + interval '1 month')
+                        and (c.type = 1 or c.type = 3)
                   group by c.title, c.type, t.amount, c.price
                   order by c.title
         ";
         $stmt = $conn->prepare($sql);
-        $stmt->execute(['date' => $date]);
+        $stmt->execute(['date' => $date->format('m-d-Y')]);
 
         return $stmt->fetchAll();
     }

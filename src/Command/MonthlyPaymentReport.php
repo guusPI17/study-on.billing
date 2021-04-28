@@ -51,7 +51,7 @@ class MonthlyPaymentReport extends Command
 
         $courses = $this->em
             ->getRepository(Course::class)
-            ->findMonthlyPaymentReport($date);
+            ->findMonthlyPaymentReport((new \DateTime($date)));
 
         $totalAmount = 0;
         foreach ($courses as $course) {
